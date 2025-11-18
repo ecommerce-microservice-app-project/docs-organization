@@ -3,6 +3,7 @@
 ## Índice de Documentación
 
 - **[Estrategia de Branching](./ESTRATEGIA_BRANCHING.md)** - Estrategia de branching y flujo de trabajo Git
+- **[Patrones de Diseño](./PATRONES_DISENO.md)** - Patrones de diseño identificados y documentados en la arquitectura
 - **[Taller 2: Pruebas y Lanzamiento](./README.md#taller-2-pruebas-y-lanzamiento)** - Reporte del Taller 2
 
 ---
