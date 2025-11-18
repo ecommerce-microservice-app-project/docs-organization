@@ -384,16 +384,6 @@ git commit -m "fix: corregir error crítico"
 - Estrategia implementada y funcionando
 - Pipelines configurados para todas las ramas
 - Release Notes automáticos en main/master
-- Versionado semántico automático: Pendiente (actualmente usa versión fija)
-
-### Mejoras Futuras
-- [ ] Implementar versionado semántico automático basado en commits
-- [ ] Configurar protección de ramas en GitHub
-- [ ] Agregar aprobaciones manuales para producción
-- [ ] Implementar feature flags por ambiente
-- [ ] Configurar notificaciones de fallos en pipelines
-
----
 
 **Última actualización**: Enero 2025  
 **Versión del documento**: 1.0
