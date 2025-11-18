@@ -1,3 +1,12 @@
+# Proyecto Final IngeSoft V - Documentación Completa
+
+## Índice de Documentación
+
+- **[Estrategia de Branching](./ESTRATEGIA_BRANCHING.md)** - Estrategia de branching y flujo de trabajo Git
+- **[Taller 2: Pruebas y Lanzamiento](./README.md#taller-2-pruebas-y-lanzamiento)** - Reporte del Taller 2
+
+---
+
 # Taller 2: Pruebas y Lanzamiento
 ## Reporte de Resultados
 
