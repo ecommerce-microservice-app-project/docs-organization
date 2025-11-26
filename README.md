@@ -4,6 +4,7 @@
 
 - **[Servicios](./SERVICIOS.md)** - Documentación completa de todos los microservicios del sistema
 - **[Costos de Infraestructura](./COSTOS_INFRAESTRUCTURA.md)** - Análisis detallado de costos de infraestructura multi-cloud
+- **[Manual de Operaciones](./MANUAL_OPERACIONES.md)** - Procedimientos y comandos para operar y mantener el sistema
 - **[Estrategia de Branching](./ESTRATEGIA_BRANCHING.md)** - Estrategia de branching y flujo de trabajo Git
 - **[Patrones de Diseño](./PATRONES_DISENO.md)** - Patrones de diseño identificados y documentados en la arquitectura
 - **[Planes de Rollback](./PLANES_DE_ROLLBACK.md)** - Estrategias y procedimientos para rollback de despliegues
