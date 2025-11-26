@@ -2,8 +2,11 @@
 
 ## Índice de Documentación
 
+- **[Servicios](./SERVICIOS.md)** - Documentación completa de todos los microservicios del sistema
 - **[Estrategia de Branching](./ESTRATEGIA_BRANCHING.md)** - Estrategia de branching y flujo de trabajo Git
 - **[Patrones de Diseño](./PATRONES_DISENO.md)** - Patrones de diseño identificados y documentados en la arquitectura
+- **[Planes de Rollback](./PLANES_DE_ROLLBACK.md)** - Estrategias y procedimientos para rollback de despliegues
+- **[Change Management](./CHANGE_MANAGEMENT.md)** - Gestión de cambios y versionado semántico
 - **[Taller 2: Pruebas y Lanzamiento](./README.md#taller-2-pruebas-y-lanzamiento)** - Reporte del Taller 2
 
 ---
