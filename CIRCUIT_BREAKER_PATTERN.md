@@ -38,7 +38,7 @@ El Circuit Breaker en software funciona exactamente igual con las llamadas a ser
 
 El Circuit Breaker opera en **3 estados** distintos:
 
-### 📊 Diagrama de Estados
+### Diagrama de Estados
 
 ```
                     ┌─────────────────────────┐
@@ -81,36 +81,35 @@ El Circuit Breaker opera en **3 estados** distintos:
          CLOSED          OPEN              │
 ```
 
-### 1. 🟢 CLOSED (Cerrado) - Estado Normal
+### 1. CLOSED (Cerrado) - Estado Normal
 
 **Descripción**: El circuito está cerrado, las llamadas fluyen normalmente.
 
 **Comportamiento**:
 
-- ✅ Todas las solicitudes se envían al servicio destino
-- 📊 Se registran éxitos y fallos en una ventana deslizante (sliding window)
-- 🔢 Se calcula continuamente la tasa de fallos (failure rate)
-- 🚨 Si la tasa de fallos supera el threshold → Transición a OPEN
+- Todas las solicitudes se envían al servicio destino
+- Se registran éxitos y fallos en una ventana deslizante (sliding window)
+- Se calcula continuamente la tasa de fallos (failure rate)
+- Si la tasa de fallos supera el threshold → Transición a OPEN
 
 **Ejemplo**:
 
 ```
-Ventana: [✅ ✅ ✅ ❌ ✅ ✅ ✅ ❌ ✅ ✅]
 Tasa de fallos: 20% (2 de 10)
 Threshold: 50%
 Estado: CLOSED (20% < 50%, todo normal)
 ```
 
-### 2. 🔴 OPEN (Abierto) - Circuito Abierto
+### 2. OPEN (Abierto) - Circuito Abierto
 
 **Descripción**: El circuito se ha abierto, el servicio destino se considera no disponible.
 
 **Comportamiento**:
 
-- ❌ **TODAS las solicitudes son rechazadas INMEDIATAMENTE**
-- ⚡ No se envían requests al servicio destino (fail-fast)
-- 🔀 Se ejecuta automáticamente el método fallback
-- ⏱️ Después de `wait_duration` → Transición a HALF_OPEN
+- **TODAS las solicitudes son rechazadas INMEDIATAMENTE**
+- No se envían requests al servicio destino (fail-fast)
+- Se ejecuta automáticamente el método fallback
+- Después de `wait_duration` → Transición a HALF_OPEN
 
 **Ventajas**:
 
@@ -122,33 +121,31 @@ Estado: CLOSED (20% < 50%, todo normal)
 
 ```
 Estado: OPEN
-Request llegando → ❌ Rechazado inmediatamente
+Request llegando →  Rechazado inmediatamente
 Fallback: Devolver datos en caché o respuesta degradada
 Tiempo en OPEN: 10 segundos
 ```
 
-### 3. 🟡 HALF_OPEN (Medio Abierto) - Estado de Prueba
+### 3. HALF_OPEN (Medio Abierto) - Estado de Prueba
 
 **Descripción**: El circuito está probando si el servicio destino se recuperó.
 
 **Comportamiento**:
 
-- 🧪 Permite un número limitado de llamadas de prueba
-- 📊 Evalúa si estas llamadas tienen éxito
-- ✅ Si las pruebas tienen éxito → Transición a CLOSED
-- ❌ Si las pruebas fallan → Transición a OPEN
+- Permite un número limitado de llamadas de prueba
+- Evalúa si estas llamadas tienen éxito
+- Si las pruebas tienen éxito → Transición a CLOSED
+- Si las pruebas fallan → Transición a OPEN
 
 **Ejemplo**:
 
 ```
 Estado: HALF_OPEN
 Llamadas permitidas: 3
-Resultados: [✅ ✅ ✅]
-Todas exitosas → Transición a CLOSED ✅
+Todas exitosas → Transición a CLOSED
 
 O si:
-Resultados: [✅ ❌ ❌]
-Fallan → Transición a OPEN ❌ (esperar otros 10s)
+Fallan → Transición a OPEN (esperar otros 10s)
 ```
 
 ---
@@ -172,8 +169,8 @@ Total: 15 segundos de espera
      ↓
 100 requests simultáneos = 100 threads bloqueados
      ↓
-💥 Order Service se queda sin recursos
-💥 Falla en cascada a otros servicios
+ Order Service se queda sin recursos
+ Falla en cascada a otros servicios
 ```
 
 ### Solución con Circuit Breaker
@@ -181,10 +178,10 @@ Total: 15 segundos de espera
 ```
 Order Service → User Service (CAÍDO)
      ↓
-Primera llamada: Timeout 5s ❌
-Segunda llamada: Timeout 5s ❌
+Primera llamada: Timeout 5s
+Segunda llamada: Timeout 5s
 ...
-Décima llamada: Timeout 5s ❌
+Décima llamada: Timeout 5s
      ↓
 Circuit Breaker se ABRE (50% de fallos detectados)
      ↓
@@ -193,9 +190,9 @@ Llamadas subsecuentes:
 Rechazadas instantáneamente ⚡
 Fallback ejecutado inmediatamente
      ↓
-✅ Order Service permanece saludable
-✅ User Service tiene tiempo de recuperarse
-✅ No hay threads bloqueados
+ Order Service permanece saludable
+ User Service tiene tiempo de recuperarse
+ No hay threads bloqueados
 ```
 
 ### Beneficios Clave
@@ -210,7 +207,7 @@ Fallback ejecutado inmediatamente
 
 ## Cuándo usar este patrón
 
-### ✅ USAR cuando:
+### USAR cuando:
 
 - Llamadas a servicios externos que pueden fallar completamente
 - Dependencias que pueden estar temporalmente no disponibles
@@ -218,7 +215,7 @@ Fallback ejecutado inmediatamente
 - Protección contra fallos en cascada
 - Necesidad de fail-fast en lugar de esperar timeouts
 
-### ❌ NO USAR cuando:
+### NO USAR cuando:
 
 - Llamadas a recursos locales (DB local, caché local)
 - Operaciones críticas que deben completarse (transacciones de dinero)
@@ -369,7 +366,7 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ Llamadas: [✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅]                      │
+|                                                            │
 │ Tasa de fallos: 0%                                         │
 │ Estado: CLOSED                                             │
 │ Acción: Todas las llamadas pasan normalmente              │
@@ -380,7 +377,7 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ Llamadas: [✅ ✅ ❌ ✅ ❌ ❌ ✅ ❌ ❌ ❌]                      │
+│                                                            │
 │                                                            │
 │ Cálculo:                                                   │
 │   - Total llamadas: 10                                     │
@@ -388,7 +385,7 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 │   - Tasa de fallos: 60%                                    │
 │   - Threshold: 50%                                         │
 │                                                            │
-│ Condición: 60% > 50% → 🚨 ABRIR CIRCUITO                  │
+│ Condición: 60% > 50% →  ABRIR CIRCUITO                  │
 └────────────────────────────────────────────────────────────┘
                          │
                          ↓
@@ -405,14 +402,14 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 │ Estado: OPEN                                               │
 │ Duración: 10:30:00 - 10:30:10 (10 segundos)              │
 │                                                            │
-│ Request #1 (10:30:01) → ❌ RECHAZADO → Fallback           │
-│ Request #2 (10:30:02) → ❌ RECHAZADO → Fallback           │
-│ Request #3 (10:30:03) → ❌ RECHAZADO → Fallback           │
+│ Request #1 (10:30:01) →    RECHAZADO → Fallback           │
+│ Request #2 (10:30:02) →  RECHAZADO → Fallback           │
+│ Request #3 (10:30:03) →  RECHAZADO → Fallback           │
 │ ...                                                        │
-│ Request #N (10:30:09) → ❌ RECHAZADO → Fallback           │
+│ Request #N (10:30:09) →  RECHAZADO → Fallback           │
 │                                                            │
-│ ⚡ Todos rechazados instantáneamente                       │
-│ ✅ User Service tiene tiempo de recuperarse                │
+│  Todos rechazados instantáneamente                       │
+│  User Service tiene tiempo de recuperarse                │
 └────────────────────────────────────────────────────────────┘
                          │
                          │ wait_duration (10s) transcurrido
@@ -430,9 +427,9 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 │ Estado: HALF_OPEN                                          │
 │ Llamadas permitidas: 3 (permitted_number_of_calls)        │
 │                                                            │
-│ Request #1 (10:30:11) → 🧪 ENVIADO → ✅ ÉXITO             │
-│ Request #2 (10:30:12) → 🧪 ENVIADO → ✅ ÉXITO             │
-│ Request #3 (10:30:13) → 🧪 ENVIADO → ✅ ÉXITO             │
+│ Request #1 (10:30:11) →  ENVIADO →  ÉXITO             │
+│ Request #2 (10:30:12) →  ENVIADO →  ÉXITO             │
+│ Request #3 (10:30:13) →  ENVIADO →  ÉXITO             │
 │                                                            │
 │ Resultado: 3 de 3 exitosas (100%)                         │
 │ Decisión: Servicio se recuperó → CERRAR CIRCUITO          │
@@ -442,7 +439,7 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 ┌────────────────────────────────────────────────────────────┐
 │ Estado cambió: HALF_OPEN → CLOSED                         │
 │ Timestamp: 10:30:13                                        │
-│ Sistema vuelve a la normalidad ✅                          │
+│ Sistema vuelve a la normalidad                           │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -452,9 +449,9 @@ public CartDto fallbackFindById(Integer cartId, Exception e) {
 ┌────────────────────────────────────────────────────────────┐
 │ Estado: HALF_OPEN                                          │
 │                                                            │
-│ Request #1 (10:30:11) → 🧪 ENVIADO → ✅ ÉXITO             │
-│ Request #2 (10:30:12) → 🧪 ENVIADO → ❌ FALLO             │
-│ Request #3 (10:30:13) → 🧪 ENVIADO → ❌ FALLO             │
+│ Request #1 (10:30:11) →  ENVIADO →  ÉXITO             │
+│ Request #2 (10:30:12) →  ENVIADO →  FALLO             │
+│ Request #3 (10:30:13) →  ENVIADO →  FALLO             │
 │                                                            │
 │ Resultado: 1 de 3 exitosas (33%)                          │
 │ Decisión: Aún hay problemas → ABRIR de nuevo              │
@@ -645,8 +642,8 @@ time curl http://api.alianzadelamagiaeterna.com/order-service/api/carts/1
 Cuando ambos patrones están aplicados al mismo método:
 
 ```java
-@CircuitBreaker(name = "userService", fallbackMethod = "fallbackFindById")  // 1️⃣ Primero
-@Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))             // 2️⃣ Segundo
+@CircuitBreaker(name = "userService", fallbackMethod = "fallbackFindById")  //  Primero
+@Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))             //  Segundo
 public CartDto findById(Integer cartId) { }
 ```
 
@@ -694,7 +691,7 @@ Request
 Estado CB: CLOSED
 Request → Fallo temporal
   ↓
-Retry #1 → Éxito ✅
+Retry #1 → Éxito
   ↓
 CB registra: Éxito
 CB permanece: CLOSED
@@ -711,7 +708,7 @@ CB cambia: CLOSED → OPEN
 Request #6-100: CB OPEN → Rechazados inmediatamente
   ↓
 NO se activa Retry (CB ya rechazó)
-✅ Ahorro de 300 reintentos innecesarios
+ Ahorro de 300 reintentos innecesarios
 ```
 
 ### Beneficios de la Combinación
@@ -816,7 +813,7 @@ Panel 4: Transiciones de Estado (Timeline)
 
 ## Ventajas y limitaciones
 
-### ✅ Ventajas
+### Ventajas
 
 1. **Fail-fast**: Respuestas inmediatas cuando el servicio está caído
 2. **Previene fallos en cascada**: Protege el sistema completo
@@ -826,7 +823,7 @@ Panel 4: Transiciones de Estado (Timeline)
 6. **Métricas incorporadas**: Monitoreo detallado incluido
 7. **Configurable**: Ajustable según necesidades
 
-### ⚠️ Limitaciones
+### Limitaciones
 
 1. **Complejidad adicional**: Más lógica que mantener
 2. **Configuración delicada**: Parámetros incorrectos pueden causar problemas
@@ -975,10 +972,10 @@ El **Circuit Breaker Pattern** es esencial para construir sistemas distribuidos 
 
 **Integración perfecta con**:
 
-- ✅ **Retry Pattern**: Maneja fallos transitorios antes de que el CB intervenga
-- ✅ **Timeout Pattern**: Define cuándo considerar una llamada como "fallida"
-- ✅ **Fallback Pattern**: Proporciona respuestas degradadas cuando el CB está OPEN
-- ✅ **Externalized Configuration**: Permite ajustes operacionales sin deployar
+- **Retry Pattern**: Maneja fallos transitorios antes de que el CB intervenga
+- **Timeout Pattern**: Define cuándo considerar una llamada como "fallida"
+- **Fallback Pattern**: Proporciona respuestas degradadas cuando el CB está OPEN
+- **Externalized Configuration**: Permite ajustes operacionales sin deployar
 
 **Próximos pasos**:
 

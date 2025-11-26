@@ -34,7 +34,7 @@ Reintento #2 → Fallo
     ↓
 Esperar 4 segundos
     ↓
-Reintento #3 → ✅ Éxito o ❌ Fallo definitivo
+Reintento #3 →  Éxito o  Fallo definitivo
 ```
 
 ---
@@ -55,16 +55,16 @@ Sin el Retry Pattern, estos fallos temporales causarían que las solicitudes fal
 
 ### Beneficios:
 
-- ✅ **Resiliencia**: Recuperación automática de fallos temporales
-- ✅ **Mejor experiencia de usuario**: Operaciones exitosas a pesar de problemas transitorios
-- ✅ **Reducción de falsos errores**: Evita reportar errores que se resolverían con un reintento
-- ✅ **Sin intervención manual**: Automático y transparente
+-  **Resiliencia**: Recuperación automática de fallos temporales
+-  **Mejor experiencia de usuario**: Operaciones exitosas a pesar de problemas transitorios
+-  **Reducción de falsos errores**: Evita reportar errores que se resolverían con un reintento
+-  **Sin intervención manual**: Automático y transparente
 
 ---
 
 ## Cuándo usar este patrón
 
-### ✅ USAR cuando:
+### USAR cuando:
 
 - Llamadas a servicios HTTP/REST externos
 - Operaciones que pueden fallar temporalmente
@@ -72,7 +72,7 @@ Sin el Retry Pattern, estos fallos temporales causarían que las solicitudes fal
 - Servicios que ocasionalmente devuelven timeouts
 - Bases de datos que pueden tener bloqueos momentáneos
 
-### ❌ NO USAR cuando:
+###  NO USAR cuando:
 
 - Errores de lógica de negocio (400 Bad Request, 422 Unprocessable Entity)
 - Errores de autenticación (401, 403)
@@ -226,7 +226,7 @@ public CartDto recoverFromUserServiceFailure(Exception e, Integer cartId) {
 ┌─────────────────────────────────────────────────────────────┐
 │ 3. INTENTO #1 (inmediato)                                  │
 │    - Busca Cart en DB → OK                                 │
-│    - Llama a USER-SERVICE → ❌ FALLO (Connection Timeout)  │
+│    - Llama a USER-SERVICE →  FALLO (Connection Timeout)  │
 │    - Excepción: RestClientException                        │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -242,7 +242,7 @@ public CartDto recoverFromUserServiceFailure(Exception e, Integer cartId) {
 ┌─────────────────────────────────────────────────────────────┐
 │ 5. INTENTO #2 (después de 1s)                              │
 │    - Busca Cart en DB → OK                                 │
-│    - Llama a USER-SERVICE → ❌ FALLO (Connection Timeout)  │
+│    - Llama a USER-SERVICE →  FALLO (Connection Timeout)  │
 │    - Excepción: RestClientException                        │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -257,7 +257,7 @@ public CartDto recoverFromUserServiceFailure(Exception e, Integer cartId) {
 ┌─────────────────────────────────────────────────────────────┐
 │ 7. INTENTO #3 (después de 2s adicionales)                  │
 │    - Busca Cart en DB → OK                                 │
-│    - Llama a USER-SERVICE → ✅ ÉXITO                       │
+│    - Llama a USER-SERVICE →  ÉXITO                       │
 │    - UserDto recibido correctamente                        │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -430,7 +430,7 @@ kubectl logs -f deployment/order-service -n ecommerce-dev
 
 - **10:15:30**: Intento #1 → Fallo
 - **10:15:32**: Intento #2 (después de 1s) → Fallo
-- **10:15:35**: Intento #3 (después de 2s adicionales) → Éxito ✅
+- **10:15:35**: Intento #3 (después de 2s adicionales) → Éxito 
 
 ### Logs cuando todos los reintentos fallan
 
@@ -455,7 +455,7 @@ kubectl logs -f deployment/order-service -n ecommerce-dev
 
 ## Ventajas y limitaciones
 
-### ✅ Ventajas
+###  Ventajas
 
 1. **Resiliencia automática**: Maneja fallos temporales sin intervención
 2. **Mejora experiencia de usuario**: Reduce errores percibidos
@@ -465,7 +465,7 @@ kubectl logs -f deployment/order-service -n ecommerce-dev
 6. **Graceful degradation**: `@Recover` permite respuestas parciales
 7. **Backoff exponencial**: Reduce carga en servicios sobrecargados
 
-### ⚠️ Limitaciones
+###  Limitaciones
 
 1. **Latencia aumentada**: Los reintentos agregan tiempo de respuesta
 2. **No para todos los errores**: Solo fallos transitorios
@@ -474,7 +474,7 @@ kubectl logs -f deployment/order-service -n ecommerce-dev
 5. **Requiere idempotencia**: Las operaciones deben ser seguras de repetir
 6. **No reemplaza Circuit Breaker**: Ambos deben usarse juntos
 
-### 🚫 Anti-patrones a evitar
+###  Anti-patrones a evitar
 
 1. **Reintentos infinitos**: Siempre establecer `maxAttempts`
 2. **Delays muy cortos**: Pueden agravar la carga en servicios caídos

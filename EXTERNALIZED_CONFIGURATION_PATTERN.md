@@ -1,6 +1,7 @@
 # Externalized Configuration Pattern (Patrón de Configuración Externa)
 
 ## Tabla de Contenidos
+
 1. [¿Qué es el Externalized Configuration Pattern?](#qué-es-el-externalized-configuration-pattern)
 2. [¿Por qué es importante para microservicios?](#por-qué-es-importante-para-microservicios)
 3. [Implementación EXISTENTE en este sistema](#implementación-existente-en-este-sistema)
@@ -22,7 +23,7 @@ El **Externalized Configuration Pattern** es un patrón arquitectónico que cons
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│  🚫 ANTES (Hardcoded Configuration)                  │
+│   ANTES (Hardcoded Configuration)                  │
 ├──────────────────────────────────────────────────────┤
 │                                                      │
 │  public class OrderService {                        │
@@ -31,11 +32,11 @@ El **Externalized Configuration Pattern** es un patrón arquitectónico que cons
 │      private int maxRetries = 3;   // ← Hardcoded  │
 │  }                                                   │
 │                                                      │
-│  ❌ Cambiar requiere: recompilar + redesplegar      │
+│   Cambiar requiere: recompilar + redesplegar      │
 └──────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────┐
-│  ✅ DESPUÉS (Externalized Configuration)            │
+│   DESPUÉS (Externalized Configuration)            │
 ├──────────────────────────────────────────────────────┤
 │                                                      │
 │  public class OrderService {                        │
@@ -46,8 +47,8 @@ El **Externalized Configuration Pattern** es un patrón arquitectónico que cons
 │      private int maxRetries;                        │
 │  }                                                   │
 │                                                      │
-│  ✅ Cambiar requiere: actualizar ConfigMap          │
-│  ✅ NO requiere recompilar ni redesplegar           │
+│   Cambiar requiere: actualizar ConfigMap          │
+│   NO requiere recompilar ni redesplegar           │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -81,14 +82,14 @@ En una arquitectura de microservicios con múltiples servicios y ambientes:
 │  - cloud-config                                            │
 │                                                             │
 │  SIN Externalized Config:                                  │
-│  ❌ 30 archivos WAR/JAR diferentes                         │
-│  ❌ Recompilar para cada cambio                            │
-│  ❌ Imposible mantener                                     │
+│   30 archivos WAR/JAR diferentes                         │
+│   Recompilar para cada cambio                            │
+│   Imposible mantener                                     │
 │                                                             │
 │  CON Externalized Config:                                  │
-│  ✅ 1 artifact (JAR) para todos los ambientes              │
-│  ✅ Configuración separada por ambiente                    │
-│  ✅ Cambios sin recompilar                                 │
+│   1 artifact (JAR) para todos los ambientes              │
+│   Configuración separada por ambiente                    │
+│   Cambios sin recompilar                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -125,6 +126,7 @@ Este sistema **YA TIENE** implementado el Externalized Configuration Pattern en 
 ### Nivel 3: Perfiles de Spring (application-{env}.yml)
 
 **Archivos**:
+
 - `application-dev.yml` - Configuración de desarrollo
 - `application-stage.yml` - Configuración de staging
 - `application-prod.yml` - Configuración de producción
@@ -268,6 +270,7 @@ spring:
 ```
 
 **Qué hace**:
+
 1. Clona el repositorio Git al arrancar
 2. Expone endpoint REST: `/{application}/{profile}`
 3. Sirve configuración combinando archivos del repo
@@ -287,11 +290,13 @@ cloud-config-server/
 ```
 
 **Ejemplo de request**:
+
 ```bash
 curl http://cloud-config:9296/order-service/prod
 ```
 
 **Respuesta** (configuración combinada):
+
 ```json
 {
   "name": "order-service",
@@ -362,11 +367,11 @@ spec:
   template:
     spec:
       containers:
-      - name: order-service
-        image: registry/order-service:0.1.0
-        envFrom:
-        - configMapRef:
-            name: order-service-config  # ← Inyecta TODAS las variables
+        - name: order-service
+          image: registry/order-service:0.1.0
+          envFrom:
+            - configMapRef:
+                name: order-service-config # ← Inyecta TODAS las variables
 ```
 
 **Resultado**: Todas las key-value del ConfigMap se convierten en variables de entorno dentro del container.
@@ -418,6 +423,7 @@ public class ResilienceConfig {
 ```
 
 **Uso**:
+
 ```java
 @Service
 public class OrderService {
@@ -439,6 +445,7 @@ public class OrderService {
 ### Mejora 1: Externalizar Parámetros de Resiliencia
 
 **Antes** (hardcoded en anotaciones):
+
 ```java
 @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
 ```
@@ -446,6 +453,7 @@ public class OrderService {
 **Después** (configurable externamente):
 
 **application.yml**:
+
 ```yaml
 app:
   resilience:
@@ -456,9 +464,10 @@ app:
 ```
 
 **ConfigMap**:
+
 ```yaml
-RETRY_MAX_ATTEMPTS: "3"   # Cambiar a 5 para más reintentos
-RETRY_DELAY: "1000"       # Cambiar a 2000 para delays más largos
+RETRY_MAX_ATTEMPTS: "3" # Cambiar a 5 para más reintentos
+RETRY_DELAY: "1000" # Cambiar a 2000 para delays más largos
 ```
 
 **Beneficio**: Operadores pueden ajustar comportamiento de reintentos sin recompilar.
@@ -466,6 +475,7 @@ RETRY_DELAY: "1000"       # Cambiar a 2000 para delays más largos
 ### Mejora 2: Configuración de Circuit Breaker Externa
 
 **application.yml**:
+
 ```yaml
 app:
   resilience:
@@ -484,10 +494,11 @@ resilience4j:
 ```
 
 **ConfigMap**:
+
 ```yaml
-CB_FAILURE_RATE: "50"         # Aumentar a 60 para ser más tolerante
-CB_WAIT_DURATION: "10s"       # Aumentar a 30s para dar más tiempo
-CB_SLIDING_WINDOW: "10"       # Aumentar a 20 para ventana más grande
+CB_FAILURE_RATE: "50" # Aumentar a 60 para ser más tolerante
+CB_WAIT_DURATION: "10s" # Aumentar a 30s para dar más tiempo
+CB_SLIDING_WINDOW: "10" # Aumentar a 20 para ventana más grande
 ```
 
 **Beneficio**: Tuning de resiliencia en producción sin deployments.
@@ -495,26 +506,29 @@ CB_SLIDING_WINDOW: "10"       # Aumentar a 20 para ventana más grande
 ### Mejora 3: Separación por Ambiente
 
 #### Desarrollo (dev)
+
 ```yaml
 # ConfigMap en namespace ecommerce-dev
-RETRY_MAX_ATTEMPTS: "3"       # Menos reintentos para feedback rápido
-CB_WAIT_DURATION: "5s"        # Tiempos cortos para testing
+RETRY_MAX_ATTEMPTS: "3" # Menos reintentos para feedback rápido
+CB_WAIT_DURATION: "5s" # Tiempos cortos para testing
 SPRING_PROFILES_ACTIVE: "dev"
 ```
 
 #### Staging (stage)
+
 ```yaml
 # ConfigMap en namespace ecommerce-stage
-RETRY_MAX_ATTEMPTS: "4"       # Intermedio
-CB_WAIT_DURATION: "10s"       # Intermedio
+RETRY_MAX_ATTEMPTS: "4" # Intermedio
+CB_WAIT_DURATION: "10s" # Intermedio
 SPRING_PROFILES_ACTIVE: "stage"
 ```
 
 #### Producción (prod)
+
 ```yaml
 # ConfigMap en namespace ecommerce-prod
-RETRY_MAX_ATTEMPTS: "5"       # Más reintentos para máxima resiliencia
-CB_WAIT_DURATION: "30s"       # Más tiempo para recuperación
+RETRY_MAX_ATTEMPTS: "5" # Más reintentos para máxima resiliencia
+CB_WAIT_DURATION: "30s" # Más tiempo para recuperación
 SPRING_PROFILES_ACTIVE: "prod"
 ```
 
@@ -554,7 +568,7 @@ kubectl rollout status deployment/order-service -n ecommerce-dev
 curl http://api.../order-service/api/carts/1
 kubectl logs -f deployment/order-service -n ecommerce-dev
 
-# Logs ahora muestran 5 intentos ✅
+# Logs ahora muestran 5 intentos
 ```
 
 **Tiempo total**: ~2 minutos (vs horas si se requiriera recompilar)
@@ -574,7 +588,7 @@ kubectl get configmap order-service-config -n ecommerce-stage -o yaml | grep CB_
 kubectl get configmap order-service-config -n ecommerce-prod -o yaml | grep CB_WAIT_DURATION
 # Output: CB_WAIT_DURATION: "30s"
 
-# Mismo JAR, diferentes configuraciones ✅
+# Mismo JAR, diferentes configuraciones
 ```
 
 ### Demo 3: Actualización en vivo con Spring Cloud Config
@@ -598,7 +612,7 @@ curl -X POST http://order-service:8080/order-service/actuator/refresh
 # Paso 5: Verificar nueva propiedad
 curl http://order-service:8080/order-service/actuator/env | jq '.propertySources[] | select(.name | contains("cloud-config"))'
 
-# Nueva propiedad disponible ✅
+# Nueva propiedad disponible
 ```
 
 ---
@@ -608,11 +622,13 @@ curl http://order-service:8080/order-service/actuator/env | jq '.propertySources
 ### Caso 1: Feature Toggle (Activar/Desactivar funcionalidad)
 
 **ConfigMap**:
+
 ```yaml
-FEATURE_NEW_CHECKOUT: "false"  # Desactivado en prod
+FEATURE_NEW_CHECKOUT: "false" # Desactivado en prod
 ```
 
 **Código**:
+
 ```java
 @Service
 public class OrderService {
@@ -637,6 +653,7 @@ public class OrderService {
 **Problema**: Timeouts muy cortos causan fallos en producción.
 
 **Solución**:
+
 ```bash
 # Sin recompilar, aumentar timeouts
 kubectl edit configmap order-service-config -n ecommerce-prod
@@ -653,12 +670,14 @@ kubectl rollout restart deployment/order-service -n ecommerce-prod
 ### Caso 3: Configuración de Rate Limiting
 
 **ConfigMap**:
+
 ```yaml
-RATE_LIMIT_PER_MINUTE: "100"  # 100 requests/minuto
-RATE_LIMIT_BURST: "20"        # Burst de 20 requests
+RATE_LIMIT_PER_MINUTE: "100" # 100 requests/minuto
+RATE_LIMIT_BURST: "20" # Burst de 20 requests
 ```
 
 **Código**:
+
 ```java
 @Configuration
 public class RateLimitConfig {
@@ -685,7 +704,7 @@ public class RateLimitConfig {
 
 ## Ventajas y limitaciones
 
-### ✅ Ventajas
+### Ventajas
 
 1. **Un artifact para todos los ambientes**: Mismo JAR en dev/stage/prod
 2. **Cambios sin recompilar**: Ajustes operacionales rápidos
@@ -696,7 +715,7 @@ public class RateLimitConfig {
 7. **Configuración tipo**: Type-safe con @ConfigurationProperties
 8. **Refresh en caliente**: Spring Cloud Config refresh sin reiniciar
 
-### ⚠️ Limitaciones
+### Limitaciones
 
 1. **Dependencia del Config Server**: Si cae, servicios no pueden arrancar
 2. **Complejidad adicional**: Más componentes que mantener
@@ -705,7 +724,7 @@ public class RateLimitConfig {
 5. **Versionado complejo**: Múltiples fuentes de configuración
 6. **Secrets en plaintext**: ConfigMaps no encriptan valores sensibles
 
-### 🚫 Anti-patrones a evitar
+### Anti-patrones a evitar
 
 1. **Hardcodear valores**: Contradice el propósito del patrón
 2. **No usar valores por defecto**: Siempre proporcionar defaults
@@ -723,6 +742,7 @@ public class RateLimitConfig {
 **Problema actual**: Passwords y API keys en ConfigMaps (plaintext)
 
 **Solución**:
+
 ```yaml
 # secrets.yaml
 apiVersion: v1
@@ -731,24 +751,26 @@ metadata:
   name: order-service-secrets
 type: Opaque
 data:
-  database-password: cGFzc3dvcmQxMjM=  # base64
-  api-key: YWJjZGVmZ2hpams=             # base64
+  database-password: cGFzc3dvcmQxMjM= # base64
+  api-key: YWJjZGVmZ2hpams= # base64
 ```
 
 **Uso en Deployment**:
+
 ```yaml
 containers:
-- name: order-service
-  envFrom:
-  - configMapRef:
-      name: order-service-config
-  - secretRef:
-      name: order-service-secrets  # ← Agregar Secrets
+  - name: order-service
+    envFrom:
+      - configMapRef:
+          name: order-service-config
+      - secretRef:
+          name: order-service-secrets # ← Agregar Secrets
 ```
 
 ### 2. HashiCorp Vault para Gestión de Secrets
 
 **Arquitectura propuesta**:
+
 ```
 ┌────────────────┐
 │  HashiCorp     │
@@ -771,6 +793,7 @@ containers:
 ```
 
 **Beneficios**:
+
 - Encriptación de secrets
 - Rotación automática de credenciales
 - Auditoría de acceso
@@ -800,6 +823,7 @@ metadata:
 ### 4. Spring Cloud Config con Refresh Automático
 
 **Implementar**:
+
 ```java
 @RefreshScope  // ← Permite refresh en caliente
 @Service
@@ -811,6 +835,7 @@ public class CartServiceImpl {
 ```
 
 **Trigger refresh**:
+
 ```bash
 # Cambiar config en Git
 # Luego:
@@ -822,11 +847,13 @@ curl -X POST http://order-service:8080/order-service/actuator/refresh
 ### 5. Configuración A/B Testing
 
 **ConfigMap**:
+
 ```yaml
-FEATURE_NEW_ALGO_PERCENTAGE: "20"  # 20% de usuarios ven nueva versión
+FEATURE_NEW_ALGO_PERCENTAGE: "20" # 20% de usuarios ven nueva versión
 ```
 
 **Código**:
+
 ```java
 @Service
 public class RecommendationService {
@@ -850,6 +877,7 @@ public class RecommendationService {
 ### 6. Observabilidad de Configuración
 
 **Implementar**:
+
 ```bash
 # Endpoint que muestra configuración actual
 GET /actuator/configprops
@@ -864,6 +892,7 @@ GET /actuator/env
 ### 7. Validación de Configuración
 
 **Implementar**:
+
 ```java
 @Configuration
 @Validated
@@ -884,6 +913,7 @@ public class ResilienceConfig {
 ### 8. Configuración Multi-Tenant
 
 **Para el futuro** (si se agregan múltiples clientes):
+
 ```
 Config Server
   ├─ tenant-acme/
@@ -900,14 +930,15 @@ Config Server
 
 El **Externalized Configuration Pattern** es fundamental para operar microservicios en múltiples ambientes de manera eficiente. Este sistema **ya implementa** este patrón de manera robusta con:
 
-1. ✅ **Spring Cloud Config Server**: Configuración centralizada desde Git
-2. ✅ **Kubernetes ConfigMaps**: Configuración específica de K8s
-3. ✅ **Perfiles de Spring**: Configuración por ambiente (dev/stage/prod)
-4. ✅ **Externalización de parámetros de resiliencia** (MEJORA): Retry y Circuit Breaker configurables
+1.  **Spring Cloud Config Server**: Configuración centralizada desde Git
+2.  **Kubernetes ConfigMaps**: Configuración específica de K8s
+3.  **Perfiles de Spring**: Configuración por ambiente (dev/stage/prod)
+4.  **Externalización de parámetros de resiliencia** (MEJORA): Retry y Circuit Breaker configurables
 
 ### Impacto de las Mejoras Implementadas
 
 **Antes**:
+
 ```
 Cambiar max_retries de 3 a 5:
 1. Modificar anotación @Retryable en código
@@ -920,6 +951,7 @@ Tiempo: ~30-60 minutos
 ```
 
 **Después** (con Externalized Config):
+
 ```
 Cambiar max_retries de 3 a 5:
 1. kubectl edit configmap order-service-config
@@ -939,7 +971,7 @@ Tiempo: ~2 minutos
 
 ---
 
-**Estado actual**: ✅ IMPLEMENTADO Y FUNCIONANDO
-**Mejoras**: ✅ PARÁMETROS DE RESILIENCIA EXTERNALIZADOS
+**Estado actual**: IMPLEMENTADO Y FUNCIONANDO
+**Mejoras**: PARÁMETROS DE RESILIENCIA EXTERNALIZADOS
 **Framework**: Spring Cloud Config + Kubernetes ConfigMaps
 **Última actualización**: Enero 2025
